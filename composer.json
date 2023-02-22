@@ -1,0 +1,10 @@
+{
+  "autoload": {
+    "psr-4": {
+      "InternationalLotteries\\": "src/"
+    },
+    "files": [
+      "src/helpers/FileSystemHelper.php"
+    ]
+  }
+}

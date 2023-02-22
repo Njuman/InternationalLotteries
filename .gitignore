@@ -1,0 +1,5 @@
+# Ignore RubyMine files
+/.idea
+
+# Ignore Visual Studio Code files
+.vscode/
