@@ -3,6 +3,7 @@
 namespace InternationalLotteries;
 
 use InternationalLotteries\processors\LottoProcessor;
+use SplFileObject;
 
 class Runner
 {
@@ -40,10 +41,30 @@ class Runner
     public function run(): void
     {
         foreach ($this->lotteries as $lotto) {
-            $files = getFilesByDateRange('uploads', $lotto::PREFIX, $this->start, $this->end);
+            $prefix = strtolower($lotto::PREFIX);
+            $filesCollection = getFilesByDateRange('uploads', $prefix, $this->start, $this->end);
 
-            $processor = new $lotto($files[1], splFileObjectToArray($files[0]));
-            $processor->call();
+            foreach ($filesCollection as $drawId => $files) {
+                $output = $this->save($prefix, $drawId);
+                $entries = $files[1];
+                $result = splFileObjectToArray($files[0])[1];
+
+                $entries->seek(1);
+
+                $output->fputcsv(explode(';', $lotto::HEADER), ';');
+
+                $processor = new $lotto($files[1], $result, $output);
+                $processor->call();
+            }
         }
+    }
+
+    public function save($prefix, $drawId): SplFileObject
+    {
+        $filename = "output/$prefix-$drawId.csv";
+        $file = getFileByName($filename, 'a');
+        $file->ftruncate(0);
+
+        return $file;
     }
 }
